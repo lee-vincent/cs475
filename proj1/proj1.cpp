@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
             float distx = DistX[n];
 
             float vx = sqrt(2.0f * GRAVITY * (beforey - aftery));
-            float t = (2.0f * aftery) / GRAVITY;
+            float t = sqrt((2.0f * aftery) / GRAVITY);
             float dx = vx * t;
             if (fabs(dx - distx) <= RADIUS)
                 numSuccesses++;
