@@ -25,11 +25,12 @@ const float MIDTEMP =                   40.0;
 const float MIDPRECIP =                 10.0;
 
 // System state global variables
+int     StartYear = 2024;
 int     NowYear = 2024;     // 2024 - 2029
 int     NowMonth = 0;       // 0 - 11
-float   NowPrecip;          // inches of rain per month
-float   NowTemp;            // temperature this month
-float   NowHeight = 5.;     // grain height in inches
+float   NowPrecip = 3.0;    // in of rain per month
+float   NowTemp = 60.5;     // temperature Fahrenheit this month
+float   NowHeight = 5.0;    // grain height in inches
 int     NowNumDeer = 2;     // number of deer in the current population
 
 // Barrier global variables
@@ -168,12 +169,17 @@ void Watcher()
         WaitBarrier();
 
         // Print the current set of global state variables:
-        int monthNum = (NowYear - 2024) * 12 + NowMonth + 1;
-        printf("%d,%d,%d,%.2f,%.2f,%d,%.2f\n",
-               monthNum, NowYear, NowMonth, NowTemp, NowPrecip, NowNumDeer, NowHeight);
-
-        // Increment time:
-        NowMonth++;
+        if (NowYear == 2024 && NowMonth ==0)
+            printf("Month,Temp (C),Precip (cm),Deer,Height (cm)\n");
+        int monthNum = (NowYear - 2024) * 12 + NowMonth;
+        float nowTempCelsius = (5.0 / 9.0) * (NowTemp - 32.0);
+        float nowPrecipCm = NowPrecip * 2.54;
+        float nowHeightCm = NowHeight * 2.54;
+        printf("%d,%.2f,%.2f,%d,%.2f\n",
+               monthNum, nowTempCelsius, nowPrecipCm, NowNumDeer, nowHeightCm);
+        // °C = (5. / 9.) * (°F - 32)
+             // Increment time:
+             NowMonth++;
         if (NowMonth > 11)
         {
             NowMonth = 0;
