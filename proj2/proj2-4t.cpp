@@ -97,7 +97,7 @@ void WaitBarrier()
     while (NumAtBarrier != 0)
         ; // all threads wait here until the last one arrives...
 
-#pragma omp atomic // ... and sets NumAtBarrier to 0
+    #pragma omp atomic // ... and sets NumAtBarrier to 0
     NumGone++;
 }
 
@@ -203,19 +203,19 @@ int main(int argc, char *argv[])
     omp_set_num_threads(3); // 3 threads for 3 functions
     InitBarrier(3);
 
-#pragma omp parallel sections
+    #pragma omp parallel sections
     {
-#pragma omp section
+        #pragma omp section
         {
             Deer();
         }
 
-#pragma omp section
+        #pragma omp section
         {
             Grain();
         }
 
-#pragma omp section
+        #pragma omp section
         {
             Watcher();
         }
