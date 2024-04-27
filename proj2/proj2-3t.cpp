@@ -30,7 +30,7 @@ int     NowMonth = 0;       // 0 - 11
 float   NowPrecip;          // inches of rain per month
 float   NowTemp;            // temperature this month
 float   NowHeight = 5.;     // grain height in inches
-int     NowNumDeer = 1;     // number of deer in the current population
+int     NowNumDeer = 2;     // number of deer in the current population
 
 // Barrier global variables
 omp_lock_t Lock;
@@ -38,8 +38,8 @@ volatile int NumInThreadTeam; // number of threads you want to block at the barr
 volatile int NumAtBarrier;
 volatile int NumGone;
 
-// Random number generation function
-float Ranf(unsigned int *seed, float low, float high)
+// Re-entrant Random number generation function
+float Ranf_r(unsigned int *seed, float low, float high)
 {
     float r = (float)rand_r(seed); // 0 - RAND_MAX
     float t = r / (float)RAND_MAX; // 0. - 1.
@@ -58,9 +58,9 @@ void UpdateTempAndPrecip()
 {
     float ang = (30. * (float)NowMonth + 15.) * (M_PI / 180.);
     float temp = AVG_TEMP - AMP_TEMP * cos(ang);
-    NowTemp = temp + Ranf(&seed, -RANDOM_TEMP, RANDOM_TEMP);
+    NowTemp = temp + Ranf_r(&seed, -RANDOM_TEMP, RANDOM_TEMP);
     float precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin(ang);
-    NowPrecip = precip + Ranf(&seed, -RANDOM_PRECIP, RANDOM_PRECIP);
+    NowPrecip = precip + Ranf_r(&seed, -RANDOM_PRECIP, RANDOM_PRECIP);
     if (NowPrecip < 0.)
     {
         NowPrecip = 0.;
@@ -168,8 +168,9 @@ void Watcher()
         WaitBarrier();
 
         // Print the current set of global state variables:
-        printf("%d,%d,%.2f,%.2f,%d,%.2f\n",
-               NowYear, NowMonth, NowTemp, NowPrecip, NowNumDeer, NowHeight);
+        int monthNum = (NowYear - 2024) * 12 + NowMonth + 1;
+        printf("%d,%d,%d,%.2f,%.2f,%d,%.2f\n",
+               monthNum, NowYear, NowMonth, NowTemp, NowPrecip, NowNumDeer, NowHeight);
 
         // Increment time:
         NowMonth++;
