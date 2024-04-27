@@ -6,17 +6,18 @@
 #include <omp.h>
 
 // Seed for random number
-unsigned int seed = (unsigned int)time(NULL);
+// unsigned int seed = (unsigned int)time(NULL);
+unsigned int seed = 0; // this is in the project notes
 
 // Necessary constants
-const float GRAIN_GROWS_PER_MONTH = 8.0;
-const float ONE_DEER_EATS_PER_MONTH = 0.5;
+const float GRAIN_GROWS_PER_MONTH = 12.0;
+const float ONE_DEER_EATS_PER_MONTH = 1.0;
 
-const float AVG_PRECIP_PER_MONTH = 6.0; // average
+const float AVG_PRECIP_PER_MONTH = 7.0; // average
 const float AMP_PRECIP_PER_MONTH = 6.0; // plus or minus
 const float RANDOM_PRECIP = 2.0;        // plus or minus noise
 
-const float AVG_TEMP = 50.0;    // average
+const float AVG_TEMP = 60.0;    // average
 const float AMP_TEMP = 20.0;    // plus or minus
 const float RANDOM_TEMP = 10.0; // plus or minus noise
 
@@ -24,34 +25,22 @@ const float MIDTEMP = 40.0;
 const float MIDPRECIP = 10.0;
 
 // System state global variables
-int NowYear = 2024;
-int NowMonth = 0;
-float NowPrecip;
-float NowTemp;
-float NowHeight = 5.;
-int NowNumDeer = 1;
-int NowNumLicenses = 0; // Your additional agent's global variable
+int StartYear = 2024;
+int NowYear = 2024;    // 2024 - 2029
+int NowMonth = 0;      // 0 - 11
+float NowPrecip = 3.0; // in of rain per month
+float NowTemp = 60.5;  // temperature Fahrenheit this month
+float NowHeight = 5.0; // grain height in inches
+int NowNumDeer = 2;    // number of deer in the current population
 
 // Barrier global variables
 omp_lock_t Lock;
-int NumInThreadTeam;
-int NumAtBarrier;
-int NumGone;
+volatile int NumInThreadTeam; // number of threads you want to block at the barrier
+volatile int NumAtBarrier;
+volatile int NumGone;
 
-// Function prototypes
-void InitBarrier(int n);
-void WaitBarrier();
-float SQR(float x);
-float Ranf(unsigned int *seed, float low, float high);
-
-void Deer();
-void Grain();
-void Watcher();
-void MyAgent(); // Your additional agent
-void updateTempAndPrecip();
-
-// Random number generation function
-float Ranf(unsigned int *seed, float low, float high)
+// Re-entrant Random number generation function
+float Ranf_r(unsigned int *seed, float low, float high)
 {
     float r = (float)rand_r(seed); // 0 - RAND_MAX
     float t = r / (float)RAND_MAX; // 0. - 1.
@@ -63,6 +52,20 @@ float Ranf(unsigned int *seed, float low, float high)
 float SQR(float x)
 {
     return x * x;
+}
+
+// Update Temperature and Precipitation
+void UpdateTempAndPrecip()
+{
+    float ang = (30. * (float)NowMonth + 15.) * (M_PI / 180.);
+    float temp = AVG_TEMP - AMP_TEMP * cos(ang);
+    NowTemp = temp + Ranf_r(&seed, -RANDOM_TEMP, RANDOM_TEMP);
+    float precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin(ang);
+    NowPrecip = precip + Ranf_r(&seed, -RANDOM_PRECIP, RANDOM_PRECIP);
+    if (NowPrecip < 0.)
+    {
+        NowPrecip = 0.;
+    }
 }
 
 // Barrier functions
@@ -78,10 +81,11 @@ void WaitBarrier()
     omp_set_lock(&Lock);
     {
         NumAtBarrier++;
-        if (NumAtBarrier == NumInThreadTeam)
+        if (NumAtBarrier == NumInThreadTeam) // release the waiting threads
         {
             NumGone = 0;
             NumAtBarrier = 0;
+            // let all the other threads return before this one unlocks:
             while (NumGone != NumInThreadTeam - 1)
                 ;
             omp_unset_lock(&Lock);
@@ -91,49 +95,14 @@ void WaitBarrier()
     omp_unset_lock(&Lock);
 
     while (NumAtBarrier != 0)
-        ; // Wait for all threads to reach barrier
+        ; // all threads wait here until the last one arrives...
 
-#pragma omp atomic
-    NumGone++; // Increment the number of threads that have left the barrier
-}
-
-int main(int argc, char *argv[])
-{
-
-    // Start the simulation with initial parameters
-    omp_set_num_threads(4); // Four threads for four functions
-    InitBarrier(4);
-
-#pragma omp parallel sections
-    {
-#pragma omp section
-        {
-            Deer(&seed);
-        }
-
-#pragma omp section
-        {
-            Grain(&seed);
-        }
-
-#pragma omp section
-        {
-            Watcher();
-        }
-
-#pragma omp section
-        {
-            MyAgent(&seed);
-        }
-    } // All threads must return in order to proceed
-
-    omp_destroy_lock(&Lock);
-
-    return 0;
+#pragma omp atomic // ... and sets NumAtBarrier to 0
+    NumGone++;
 }
 
 // Deer Simulation
-void Deer(unsigned int *seed)
+void Deer()
 {
     while (NowYear < 2030)
     {
@@ -146,11 +115,6 @@ void Deer(unsigned int *seed)
         else if (nextNumDeer > carryingCapacity)
             nextNumDeer--;
 
-        if (nextNumDeer < 0)
-            nextNumDeer = 0;
-
-        // Factor in the effect of hunting
-        nextNumDeer -= NowNumLicenses;
         if (nextNumDeer < 0)
             nextNumDeer = 0;
 
@@ -168,7 +132,7 @@ void Deer(unsigned int *seed)
 }
 
 // Grain Growth Simulation
-void Grain(unsigned int *seed)
+void Grain()
 {
     while (NowYear < 2030)
     {
@@ -207,9 +171,15 @@ void Watcher()
         WaitBarrier();
 
         // Print the current set of global state variables:
-        printf("%d,%d,%.2f,%.2f,%d,%.2f,%d\n",
-               NowYear, NowMonth, NowTemp, NowPrecip, NowNumDeer, NowHeight, NowNumLicenses);
-
+        if (NowYear == 2024 && NowMonth == 0)
+            printf("Month,Temp (C),Precip (cm),Deer,Height (cm)\n");
+        int monthNum = (NowYear - 2024) * 12 + NowMonth;
+        float nowTempCelsius = (5.0 / 9.0) * (NowTemp - 32.0);
+        float nowPrecipCm = NowPrecip * 2.54;
+        float nowHeightCm = NowHeight * 2.54;
+        printf("%d,%.2f,%.2f,%d,%.2f\n",
+               monthNum, nowTempCelsius, nowPrecipCm, NowNumDeer, nowHeightCm);
+        // °C = (5. / 9.) * (°F - 32)
         // Increment time:
         NowMonth++;
         if (NowMonth > 11)
@@ -219,53 +189,39 @@ void Watcher()
         }
 
         // Compute new environmental parameters:
-        updateTempAndPrecip();
+        UpdateTempAndPrecip();
 
         // DonePrinting barrier:
         WaitBarrier();
     }
 }
 
-// Additional Agent Simulation - Hunting Licenses
-void MyAgent(unsigned int *seed)
+int main(int argc, char *argv[])
 {
-    while (NowYear < 2030)
+
+    // Start the simulation with initial parameters
+    omp_set_num_threads(3); // 3 threads for 3 functions
+    InitBarrier(3);
+
+#pragma omp parallel sections
     {
-        // Determine the next number of hunting licenses to issue based on some logic
-        // For simplicity, let's say more licenses are issued if the deer population gets too high
-        int nextNumLicenses = NowNumLicenses;
-        if (NowNumDeer > 5)
+#pragma omp section
         {
-            nextNumLicenses = 3; // Issue more licenses if there are too many deer
-        }
-        else
-        {
-            nextNumLicenses = 1; // Fewer licenses if the deer population is lower
+            Deer();
         }
 
-        // DoneComputing barrier:
-        WaitBarrier();
+#pragma omp section
+        {
+            Grain();
+        }
 
-        NowNumLicenses = nextNumLicenses;
+#pragma omp section
+        {
+            Watcher();
+        }
+    } // Implied barrier = all functions must return in order to proceed
 
-        // DoneAssigning barrier:
-        WaitBarrier();
+    omp_destroy_lock(&Lock);
 
-        // DonePrinting barrier:
-        WaitBarrier();
-    }
-}
-
-// Update Temperature and Precipitation
-void updateTempAndPrecip()
-{
-    float ang = (30. * (float)NowMonth + 15.) * (M_PI / 180.);
-    float temp = AVG_TEMP - AMP_TEMP * cos(ang);
-    NowTemp = temp + Ranf(&seed, -RANDOM_TEMP, RANDOM_TEMP);
-    float precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin(ang);
-    NowPrecip = precip + Ranf(&seed, -RANDOM_PRECIP, RANDOM_PRECIP);
-    if (NowPrecip < 0.)
-    {
-        NowPrecip = 0.;
-    }
+    return 0;
 }
