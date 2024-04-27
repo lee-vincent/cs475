@@ -26,12 +26,13 @@ const float MIDPRECIP = 10.0;
 
 // System state global variables
 int StartYear = 2024;
-int NowYear = 2024;    // 2024 - 2029
-int NowMonth = 0;      // 0 - 11
-float NowPrecip = 3.0; // in of rain per month
-float NowTemp = 60.5;  // temperature Fahrenheit this month
-float NowHeight = 5.0; // grain height in inches
-int NowNumDeer = 2;    // number of deer in the current population
+int NowYear = 2024;            // 2024 - 2029
+int NowMonth = 0;              // 0 - 11
+float NowPrecip = 3.0;         // in of rain per month
+float NowTemp = 60.5;          // temperature Fahrenheit this month
+float NowHeight = 5.0;         // grain height in inches
+int NowNumDeer = 2;            // number of deer in the current population
+float NowTickPopulation = 1.5; // ticks population in millions
 
 // Barrier global variables
 omp_lock_t Lock;
@@ -110,9 +111,16 @@ void Deer()
         int nextNumDeer = NowNumDeer;
         int carryingCapacity = (int)(NowHeight);
 
+        // Calculate the probability of a deer contracting Lyme disease and dying from ticks
+        float lymeDiseaseChance = Ranf_r(&seed, 0.05, 0.13) * NowTickPopulation;
+
         if (nextNumDeer < carryingCapacity)
             nextNumDeer++;
         else if (nextNumDeer > carryingCapacity)
+            nextNumDeer--;
+
+        // Account for deer mortality due to Lyme disease
+        if (Ranf_r(&seed, 0.0, 1.0) < lymeDiseaseChance)
             nextNumDeer--;
 
         if (nextNumDeer < 0)
@@ -159,6 +167,36 @@ void Grain()
     }
 }
 
+// Ticks Simulation
+void Ticks()
+{
+    while (NowYear < 2030)
+    {
+        // Compute a temporary next-value for this quantity based on the current state of the simulation:
+        float nextTickPopulation = NowTickPopulation;
+        float tickGrowthRate = 0.02; // Example growth rate
+        float tickDecayRate = 0.01;  // Example decay rate
+
+        // Adjust tick population based on environmental factors
+        nextTickPopulation *= (1.0 + tickGrowthRate * NowNumDeer); // Positive effect of deer on ticks
+        nextTickPopulation *= (1.0 - tickDecayRate * NowPrecip);   // Negative effect of precipitation on ticks
+
+        if (nextTickPopulation < 0.0)
+            nextTickPopulation = 0.0;
+
+        // DoneComputing barrier:
+        WaitBarrier();
+
+        NowTickPopulation = nextTickPopulation;
+
+        // DoneAssigning barrier:
+        WaitBarrier();
+
+        // DonePrinting barrier:
+        WaitBarrier();
+    }
+}
+
 // Watcher Simulation
 void Watcher()
 {
@@ -172,13 +210,13 @@ void Watcher()
 
         // Print the current set of global state variables:
         if (NowYear == 2024 && NowMonth == 0)
-            printf("Month,Temp (C),Precip (cm),Deer,Height (cm)\n");
+            printf("Month,Temp (C),Precip (cm),Deer,Height (cm),Ticks (millions)\n");
         int monthNum = (NowYear - 2024) * 12 + NowMonth;
         float nowTempCelsius = (5.0 / 9.0) * (NowTemp - 32.0);
         float nowPrecipCm = NowPrecip * 2.54;
         float nowHeightCm = NowHeight * 2.54;
-        printf("%d,%.2f,%.2f,%d,%.2f\n",
-               monthNum, nowTempCelsius, nowPrecipCm, NowNumDeer, nowHeightCm);
+        printf("%d,%.2f,%.2f,%d,%.2f,%.1f\n",
+               monthNum, nowTempCelsius, nowPrecipCm, NowNumDeer, nowHeightCm, NowTickPopulation);
         // °C = (5. / 9.) * (°F - 32)
         // Increment time:
         NowMonth++;
@@ -200,22 +238,27 @@ int main(int argc, char *argv[])
 {
 
     // Start the simulation with initial parameters
-    omp_set_num_threads(3); // 3 threads for 3 functions
-    InitBarrier(3);
+    omp_set_num_threads(4); // 4 threads for 4 functions
+    InitBarrier(4);
 
-    #pragma omp parallel sections
+#pragma omp parallel sections
     {
-        #pragma omp section
+#pragma omp section
         {
             Deer();
         }
 
-        #pragma omp section
+#pragma omp section
         {
             Grain();
         }
 
-        #pragma omp section
+#pragma omp section
+        {
+            Ticks();
+        }
+
+#pragma omp section
         {
             Watcher();
         }
