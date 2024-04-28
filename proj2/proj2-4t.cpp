@@ -32,7 +32,7 @@ float NowPrecip = 3.0;         // in of rain per month
 float NowTemp = 60.5;          // temperature Fahrenheit this month
 float NowHeight = 5.0;         // grain height in inches
 int NowNumDeer = 2;            // number of deer in the current population
-float NowTickPopulation = 1.5; // ticks population in millions
+float NowTickPopulation = 15.0; // ticks population in millions
 
 // Barrier global variables
 omp_lock_t Lock;
