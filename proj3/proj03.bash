@@ -1,5 +1,5 @@
 #!/bin/bash
-mv "output.csv" "output-$(date +"%Y%m%d_%H%M%S").csv"
+mv "output/output.csv" "output/output-$(date +"%Y%m%d_%H%M%S").csv"
 rm -f "output.csv"
 for t in 1 2 4 6 8
 do
