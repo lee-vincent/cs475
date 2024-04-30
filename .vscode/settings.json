@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "*.page-template": "vue",
+        "*.layout-template": "vue",
+        "*.vue": "vue",
+        "*.template": "yaml",
+        "*.yaml": "yaml",
+        "*.yml": "yaml",
+        "*.cform": "yaml",
+        "*.ddb-json": "ignore",
+        "*.data": "cpp"
+    }
+}
