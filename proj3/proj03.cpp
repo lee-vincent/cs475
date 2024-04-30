@@ -150,6 +150,7 @@ int main(int argc, char *argv[])
                 minindex = i;
             }
         }
+
         Capitals[k].name = Cities[minindex].name;
     }
 
@@ -162,11 +163,27 @@ int main(int argc, char *argv[])
             // fprintf( stderr, "\t%3d:  %8.2f , %8.2f\n", k, Capitals[k].longitude, Capitals[k].latitude );
 
             // if you did the extra credit, use this fprintf instead:
+            fprintf(stderr, "%s\n", "extra credit");
             fprintf(stderr, "\t%3d:  %8.2f , %8.2f , %s\n", k, Capitals[k].longitude, Capitals[k].latitude, Capitals[k].name.c_str());
         }
     }
 #ifdef CSV
+    fprintf(stderr, "%s\n", "CSV");
     fprintf(stderr, "%2d , %4d , %4d , %8.3lf:\n", NUMT, NUMCITIES, NUMCAPITALS, megaCityCapitalsPerSecond);
+
+    FILE *file_pointer;
+    file_pointer = fopen("output.csv", "a");
+    if (file_pointer == NULL)
+    {
+        fprintf(stderr, "Error opening CSV file!\n");
+        return 1;
+    }
+    // Write data to the CSV file
+    fprintf(file_pointer, "%2d , %4d , %4d , %8.3lf:\n", NUMT, NUMCITIES, NUMCAPITALS, megaCityCapitalsPerSecond);
+
+    // Close the CSV file
+    fclose(file_pointer);
+
 #else
     fprintf(stderr, "%2d threads : %4d cities ; %4d capitals; megatrials/sec = %8.3lf\n",
             NUMT, NUMCITIES, NUMCAPITALS, megaCityCapitalsPerSecond);
