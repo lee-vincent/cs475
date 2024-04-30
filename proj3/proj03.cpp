@@ -59,12 +59,12 @@ float Distance(int city, int capital)
 
 int main(int argc, char *argv[])
 {
-#ifdef _OPENMP
-    fprintf(stderr, "OpenMP is supported -- version = %d\n", _OPENMP);
-#else
-    fprintf(stderr, "No OpenMP support!\n");
-    return 1;
-#endif
+// #ifdef _OPENMP
+//     fprintf(stderr, "OpenMP is supported -- version = %d\n", _OPENMP);
+// #else
+//     fprintf(stderr, "No OpenMP support!\n");
+//     return 1;
+// #endif
 
     // make sure we have the data correctly:
     // for( int i = 0; i < NUMCITIES; i++ )
