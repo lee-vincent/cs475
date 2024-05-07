@@ -19,9 +19,6 @@
 // maximum iterations to allow looking for convergence:
 #define MAXITERATIONS 100
 
-// how many tries to discover the maximum performance:
-#define NUMTIMES 20
-
 #define CSV
 
 struct city
@@ -156,15 +153,23 @@ int main(int argc, char *argv[])
 
     // print the longitude-latitude of each new capital city:
     // you only need to do this once per some number of NUMCAPITALS -- do it for the 1-thread version:
-    if (NUMT == 1)
+    if (NUMT == 1 && NUMCAPITALS == 50)
     {
+        FILE *file_pointer_extra_credit;
+        file_pointer_extra_credit = fopen("output/extra-credit.csv", "a");
+        if (file_pointer_extra_credit == NULL)
+        {
+            fprintf(stderr, "Error opening CSV file!\n");
+            return 1;
+        }
         for (int k = 0; k < NUMCAPITALS; k++)
         {
             // fprintf( stderr, "\t%3d:  %8.2f , %8.2f\n", k, Capitals[k].longitude, Capitals[k].latitude );
 
             // if you did the extra credit, use this fprintf instead:
             // fprintf(stderr, "%s\n", "extra credit");
-            fprintf(stderr, "\t%3d:  %8.2f , %8.2f , %s\n", k, Capitals[k].longitude, Capitals[k].latitude, Capitals[k].name.c_str());
+            // fprintf(stderr, "\t%3d:  %8.2f, %8.2f, %s\n", k, Capitals[k].longitude, Capitals[k].latitude, Capitals[k].name.c_str());
+            fprintf(file_pointer_extra_credit, "\t%3d,  %8.2f, %8.2f, %s\n", k, Capitals[k].longitude, Capitals[k].latitude, Capitals[k].name.c_str());
         }
     }
 #ifdef CSV
@@ -179,7 +184,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     // Write data to the CSV file
-    fprintf(file_pointer, "%2d , %4d , %4d , %8.3lf:\n", NUMT, NUMCITIES, NUMCAPITALS, megaCityCapitalsPerSecond);
+    fprintf(file_pointer, "%2d, %4d, %4d, %8.3lf\n", NUMT, NUMCITIES, NUMCAPITALS, megaCityCapitalsPerSecond);
 
     // Close the CSV file
     fclose(file_pointer);
