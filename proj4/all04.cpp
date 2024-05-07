@@ -44,7 +44,23 @@ main( int argc, char *argv[ ] )
 		B[i] = sqrtf( (float)(i+1) );
 	}
 
-	fprintf( stderr, "%12d\t\n", ARRAYSIZE );
+    FILE *file_pointer_SN_Mul;
+    file_pointer_SN_Mul = fopen("SimdMul_NonSimdMul.csv", "a");
+    if (file_pointer_SN_Mul == NULL)
+    {
+        fprintf(stderr, "Error opening CSV file!\n");
+        return 1;
+    }
+
+    FILE *file_pointer_SN_MulSum;
+    file_pointer_SN_MulSum = fopen("SimdMulSum_NonSimdMulSum.csv", "a");
+    if (file_pointer_SN_MulSum == NULL)
+    {
+        fprintf(stderr, "Error opening CSV file!\n");
+        return 1;
+    }
+
+    fprintf( stderr, "%12d\t", ARRAYSIZE );
 
 	double maxPerformance = 0.;
 	for( int t = 0; t < NUMTRIES; t++ )
@@ -57,7 +73,7 @@ main( int argc, char *argv[ ] )
 			maxPerformance = perf;
 	}
 	double megaMults = maxPerformance / 1000000.;
-	fprintf( stderr, "N %10.2lf\t\n", megaMults );
+	fprintf( stderr, "N %10.2lf\t", megaMults );
 	double mmn = megaMults;
 
 
@@ -72,13 +88,15 @@ main( int argc, char *argv[ ] )
 			maxPerformance = perf;
 	}
 	megaMults = maxPerformance / 1000000.;
-	fprintf( stderr, "S %10.2lf\t\n", megaMults );
+	fprintf( stderr, "S %10.2lf\t", megaMults );
 	double mms = megaMults;
 	double speedup = mms/mmn;
-	fprintf( stderr, "(%6.2lf)\t\n", speedup );
+	fprintf( stderr, "(%6.2lf)\t", speedup );
 
+    fprintf(file_pointer_SN_Mul, "%12d,%10.2lf,%10.2lf,%6.2lf\n", ARRAYSIZE, mmn, mms, speedup);
+    fclose(file_pointer_SN_Mul);
 
-	maxPerformance = 0.;
+    maxPerformance = 0.;
 	float sumn, sums;
 	for( int t = 0; t < NUMTRIES; t++ )
 	{
@@ -90,7 +108,7 @@ main( int argc, char *argv[ ] )
 			maxPerformance = perf;
 	}
 	double megaMultAdds = maxPerformance / 1000000.;
-	fprintf( stderr, "N %10.2lf\t\n", megaMultAdds );
+	fprintf( stderr, "N %10.2lf\t", megaMultAdds );
 	mmn = megaMultAdds;
 
 
@@ -105,13 +123,15 @@ main( int argc, char *argv[ ] )
 			maxPerformance = perf;
 	}
 	megaMultAdds = maxPerformance / 1000000.;
-	fprintf( stderr, "S %10.2lf\t\n", megaMultAdds );
+	fprintf( stderr, "S %10.2lf\t", megaMultAdds );
 	mms = megaMultAdds;
 	speedup = mms/mmn;
 	fprintf( stderr, "(%6.2lf)\n", speedup );
 	//fprintf( stderr, "[ %8.1f , %8.1f , %8.1f ]\n", C[ARRAYSIZE-1], sumn, sums );
+    fprintf(file_pointer_SN_MulSum, "%12d,%10.2lf,%10.2lf,%6.2lf\n", ARRAYSIZE, mmn, mms, speedup);
+    fclose(file_pointer_SN_MulSum);
 
-	return 0;
+    return 0;
 }
 
 
