@@ -15,6 +15,11 @@
 
 #define NUMTRIES	100
 
+// setting the number of threads:
+#ifndef NUMT
+#define NUMT 1
+#endif
+
 #ifndef ARRAYSIZE
 #define ARRAYSIZE	1024*1024
 #endif
@@ -39,7 +44,7 @@ main( int argc, char *argv[ ] )
 		B[i] = sqrtf( (float)(i+1) );
 	}
 
-	fprintf( stderr, "%12d\t", ARRAYSIZE );
+	fprintf( stderr, "%12d\t\n", ARRAYSIZE );
 
 	double maxPerformance = 0.;
 	for( int t = 0; t < NUMTRIES; t++ )
@@ -52,7 +57,7 @@ main( int argc, char *argv[ ] )
 			maxPerformance = perf;
 	}
 	double megaMults = maxPerformance / 1000000.;
-	fprintf( stderr, "N %10.2lf\t", megaMults );
+	fprintf( stderr, "N %10.2lf\t\n", megaMults );
 	double mmn = megaMults;
 
 
@@ -67,10 +72,10 @@ main( int argc, char *argv[ ] )
 			maxPerformance = perf;
 	}
 	megaMults = maxPerformance / 1000000.;
-	fprintf( stderr, "S %10.2lf\t", megaMults );
+	fprintf( stderr, "S %10.2lf\t\n", megaMults );
 	double mms = megaMults;
 	double speedup = mms/mmn;
-	fprintf( stderr, "(%6.2lf)\t", speedup );
+	fprintf( stderr, "(%6.2lf)\t\n", speedup );
 
 
 	maxPerformance = 0.;
@@ -85,7 +90,7 @@ main( int argc, char *argv[ ] )
 			maxPerformance = perf;
 	}
 	double megaMultAdds = maxPerformance / 1000000.;
-	fprintf( stderr, "N %10.2lf\t", megaMultAdds );
+	fprintf( stderr, "N %10.2lf\t\n", megaMultAdds );
 	mmn = megaMultAdds;
 
 
@@ -100,7 +105,7 @@ main( int argc, char *argv[ ] )
 			maxPerformance = perf;
 	}
 	megaMultAdds = maxPerformance / 1000000.;
-	fprintf( stderr, "S %10.2lf\t", megaMultAdds );
+	fprintf( stderr, "S %10.2lf\t\n", megaMultAdds );
 	mms = megaMultAdds;
 	speedup = mms/mmn;
 	fprintf( stderr, "(%6.2lf)\n", speedup );
