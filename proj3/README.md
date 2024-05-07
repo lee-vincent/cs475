@@ -1,7 +1,7 @@
-```bash
-g++ proj2-3t.cpp -o proj2-3t -lm -fopenmp
-./proj2-3t > output-3t.csv
+## Output
+In the output/ folder **extra-credit.csv** and **output.csv** will be updated for each run.
 
-g++ proj2-4t.cpp -o proj2-4t -lm -fopenmp
-./proj2-3t > output-4t.csv
+```bash
+g++ proj3.cpp -o proj3 -lm -fopenmp
+./proj3.bash
 ```
