@@ -126,10 +126,11 @@ MonteCarlo( IN float* dbeforey, IN float* daftery, IN float* ddistx, OUT int* ds
     float distx = ddistx[gid];
 
     float vx = sqrt(2.f * GRAVITY * (beforey - aftery));
-    float t  = distx / vx;
+    // float t  = distx / vx;
+    float t = sqrt((2.0f * aftery) / GRAVITY);
     float x  = vx * t;
     if (fabs(x - distx) <= RADIUS)
-        dsuccesses[gid] = dsuccesses[gid] + 1;
+        dsuccesses[gid] += 1;
 }
 
 
