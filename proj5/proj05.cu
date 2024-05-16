@@ -210,7 +210,7 @@ main(int argc, char* argv[])
 	int numSuccesses = 0;
 	for (int i = 0; i < NUMTRIALS; i++)
 	{
-		numSuccesses =  hsuccesses[i];
+		numSuccesses +=  hsuccesses[i];
     }
 
 	float probability = (float)numSuccesses / (float)NUMTRIALS;
