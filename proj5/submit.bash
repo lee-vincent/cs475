@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J MonteCarlo
+#SBATCH -J MonteCarlo-leevi
 #SBATCH -A cs475-575
 #SBATCH -p classgputest
 #SBATCH --constraint=v100
@@ -14,6 +14,6 @@ do
   for b in 8 16 32 64 128 256
   do
     /usr/local/apps/cuda/11.7/bin/nvcc -DNUMTRIALS=$t -DBLOCKSIZE=$b -o proj05-cuda-11.7 proj05.cu
-    ./montecarlo
+    ./proj05-cuda-11.7
   done
 done
