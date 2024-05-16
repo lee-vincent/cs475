@@ -131,6 +131,7 @@ MonteCarlo( IN float* dbeforey, IN float* daftery, IN float* ddistx, OUT int* ds
     float x  = vx * t;
     if (fabs(x - distx) <= RADIUS)
         dsuccesses[gid] += 1;
+        // dsuccesses[gid] = 1; professor had this so change??
 }
 
 
@@ -209,7 +210,7 @@ main(int argc, char* argv[])
 	int numSuccesses = 0;
 	for (int i = 0; i < NUMTRIALS; i++)
 	{
-		numSuccesses +=  hsuccesses[i];
+		numSuccesses =  hsuccesses[i];
     }
 
 	float probability = (float)numSuccesses / (float)NUMTRIALS;
