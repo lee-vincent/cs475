@@ -423,8 +423,8 @@ SelectOpenclDevice()
 		fprintf(stderr, "I found no OpenCL devices!\n");
 		exit( 1 );
 	}
-	fprintf(stderr, "I have selected Platform #%d, Device #%d: ", bestPlatform, bestDevice);
-	fprintf(stderr, "Vendor = %s, Type = %s\n", Vendor(bestDeviceVendor), Type(bestDeviceType) );
+	// fprintf(stderr, "I have selected Platform #%d, Device #%d: ", bestPlatform, bestDevice);
+	// fprintf(stderr, "Vendor = %s, Type = %s\n", Vendor(bestDeviceVendor), Type(bestDeviceType) );
 }
 
 char *
