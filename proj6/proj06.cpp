@@ -271,7 +271,7 @@ main( int argc, char *argv[ ] )
 
 	float m, b;
 	Solve( sumx2, sumx, sumx, (float)DATASIZE, sumxy, sumy,   &m, &b );
-	// fprintf( stderr, "** m = %8.2f, b = %8.2f **\n", m, b );
+	fprintf( stderr, "** m = %8.2f, b = %8.2f **\n", m, b );
 
 
 #ifdef CSV
