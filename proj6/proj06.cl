@@ -14,8 +14,8 @@ Regression(	IN global const float *dX,
 
 	float x = dX[gid];
 	float y = dY[gid];
-	dSumx2[ gid ]   = ???
-	dSumx[ gid ]    = ???
-	dSumxy[ gid ]   = ???
-	dSumy[ gid ]    = ???
+	dSumx2[ gid ]   = x * x;
+	dSumx[ gid ]    = x;
+	dSumxy[ gid ]   = x * y;
+	dSumy[ gid ]    = y;
 }
