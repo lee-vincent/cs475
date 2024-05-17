@@ -1,0 +1,36 @@
+Number of Platforms = 1
+Platform #0:
+	Name    = 'NVIDIA CUDA'
+	Vendor  = 'NVIDIA Corporation'
+	Version = 'OpenCL 3.0 CUDA 11.4.507'
+	Profile = 'FULL_PROFILE'
+	Number of Devices = 1
+	Device #0:
+		Type = 0x0004 = CL_DEVICE_TYPE_GPU
+		Device Vendor ID = 0x10de (NVIDIA)
+		Device Maximum Compute Units = 15
+		Device Maximum Work Item Dimensions = 3
+		Device Maximum Work Item Sizes = 1024 x 1024 x 64
+		Device Maximum Work Group Size = 1024
+		Device Maximum Clock Frequency = 1071 MHz
+
+Device Extensions:
+cl_khr_global_int32_base_atomics
+cl_khr_global_int32_extended_atomics
+cl_khr_local_int32_base_atomics
+cl_khr_local_int32_extended_atomics
+cl_khr_fp64
+cl_khr_3d_image_writes
+cl_khr_byte_addressable_store
+cl_khr_icd
+cl_khr_gl_sharing
+cl_nv_compiler_options
+cl_nv_device_attribute_query
+cl_nv_pragma_unroll
+cl_nv_copy_opts
+cl_khr_gl_event
+cl_nv_create_buffer
+cl_khr_int64_base_atomics
+cl_khr_int64_extended_atomics
+cl_khr_device_uuid
+cl_khr_pci_bus_info
