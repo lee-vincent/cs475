@@ -144,13 +144,13 @@ int main(int argc, char *argv[])
         {
             if (dst != THEBOSS)
             {
-                MPI_Send( &BigSignal[dst*PPSize], ???, ???, ???, ???, ??? );
+                MPI_Send(&BigSignal[dst * PPSize], PPSize + MAXSHIFTS, MPI_FLOAT, dst, TAG_SCATTER, MPI_COMM_WORLD);
             }
         }
     }
     else
     {
-        MPI_Recv( PPSignal, ???, ???, ???, ???, ???, &status );
+        MPI_Recv(PPSignal, PPSize + MAXSHIFTS, MPI_FLOAT, THEBOSS, TAG_SCATTER, MPI_COMM_WORLD, &status);
     }
 
     // each processor does its own autocorrelation:
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        MPI_Send( PPSums, ???, ???, ???, ???, ??? );
+        MPI_Send(PPSums, MAXSHIFTS, MPI_FLOAT, THEBOSS, TAG_GATHER, MPI_COMM_WORLD);
     }
 
     // receive the sums and add them into the overall sums:
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
         {
             if (src != THEBOSS)
             {
-                MPI_Recv( tmpSums, ???, ???, ???, ???, ???, ??? );
+                MPI_Recv(tmpSums, MAXSHIFTS, MPI_FLOAT, src, TAG_GATHER, MPI_COMM_WORLD, &status);
                 for (int s = 0; s < MAXSHIFTS; s++)
                     BigSums[s] += tmpSums[s];
             }
