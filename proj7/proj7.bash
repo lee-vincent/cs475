@@ -3,8 +3,8 @@
 #SBATCH -J PROJ7-LEEVI
 #SBATCH -A cs475-575
 #SBATCH -p classmpitest
-#SBATCH -N 16 # number of nodes
-#SBATCH -n 16 # number of tasks
+#SBATCH -N 8 #number of nodes 
+#SBATCH -n 8 #number of tasks
 #SBATCH -o mpiproject.out
 #SBATCH -e mpiproject.err
 #SBATCH --mail-type=END,FAIL
